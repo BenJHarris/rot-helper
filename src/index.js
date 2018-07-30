@@ -6,7 +6,8 @@ class RotHelper extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      string: ""
+      userString: "",
+      letterShiftArray = []
     }
   }
 
@@ -20,7 +21,7 @@ class RotHelper extends React.Component {
           <RHInput handleChange={(event) => this.handleChange(event)} />
         </div>
         <div className="rot-helper-output">
-          {this.createLetters(this.state.string)}
+          {this.createLetters(this.state.userString)}
         </div>
       </div>
     );
@@ -39,6 +40,16 @@ class RotHelper extends React.Component {
       string: event.target.value
     })
   }
+
+  rotateChar(index, num) {
+    let origVal = this.props.value.charCodeAt(0);
+    let asciiVal = char.charCodeAt(0);
+    asciiVal += num;
+    this.setState({
+      value: String.fromCharCode(asciiVal),
+      offset: asciiVal - origVal
+    });
+  }
 }
 
 function RHTitle() {
@@ -50,23 +61,14 @@ function RHTitle() {
 class RHInput extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      value: 'yeet'
-    }
-    this.handleChange = this.handleChange.bind(this);
   }
 
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <textarea value={this.state.value} onChange={this.handleChange} />
+        <textarea value={this.props.value} onChange={this.props.handleChange} placeholder='Enter text to rotate' />
       </form>
     )
-  }
-
-  handleChange(event) {
-    this.setState({value: event.target.value});
-    this.props.handleChange(event);
   }
 }
 
@@ -81,15 +83,15 @@ class RHLetter extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="rot-letter">
         <button onClick={() => this.rotate(this.state.value, 1)}>
-          up
+          /\
         </button>
         <p>
           {this.state.value}
         </p>
         <button onClick={() => this.rotate(this.state.value, -1)}>
-          down
+          \/
         </button>
         <p>
           {this.state.offset}
@@ -98,15 +100,7 @@ class RHLetter extends React.Component {
     )
   }
 
-  rotate(char, num) {
-    let origVal = this.props.value.charCodeAt(0);
-    let asciiVal = char.charCodeAt(0);
-    asciiVal += num;
-    this.setState({
-      value: String.fromCharCode(asciiVal),
-      offset: asciiVal - origVal
-    });
-  }
+
 }
 
 
