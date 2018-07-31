@@ -6,8 +6,8 @@ class RotHelper extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      userString: "",
-      letterShiftArray = []
+      userStr: "",
+      letterShiftArray: []
     }
   }
 
@@ -21,7 +21,7 @@ class RotHelper extends React.Component {
           <RHInput handleChange={(event) => this.handleChange(event)} />
         </div>
         <div className="rot-helper-output">
-          {this.createLetters(this.state.userString)}
+          {this.createLetters(this.state.userStr)}
         </div>
       </div>
     );
@@ -37,13 +37,13 @@ class RotHelper extends React.Component {
 
   handleChange(event) {
     this.setState({
-      string: event.target.value
+      userStr: event.target.value
     })
   }
 
-  rotateChar(index, num) {
+  handleRotate(index, num) {
     let origVal = this.props.value.charCodeAt(0);
-    let asciiVal = char.charCodeAt(0);
+    let asciiVal = this.state.charCodeAt(index);
     asciiVal += num;
     this.setState({
       value: String.fromCharCode(asciiVal),
@@ -75,26 +75,22 @@ class RHInput extends React.Component {
 class RHLetter extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      value: props.value,
-      offset: 0
-    }
   }
 
   render() {
     return (
       <div className="rot-letter">
-        <button onClick={() => this.rotate(this.state.value, 1)}>
+        <button onClick={() => this.rotate(this.props.key, 1)}>
           /\
         </button>
         <p>
-          {this.state.value}
+          {this.props.value}
         </p>
-        <button onClick={() => this.rotate(this.state.value, -1)}>
+        <button onClick={() => this.props.rotate(this.props.key, -1)}>
           \/
         </button>
         <p>
-          {this.state.offset}
+          {this.props.offset}
         </p>
       </div>
     )
