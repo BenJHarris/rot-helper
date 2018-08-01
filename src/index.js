@@ -7,7 +7,9 @@ class RotHelper extends React.Component {
     super(props);
     this.state = {
       userStr: "",
-      letterShiftArray: []
+      currentStr: "",
+      letterShiftArray: [],
+      globalOffset: 0
     }
   }
 
@@ -18,10 +20,21 @@ class RotHelper extends React.Component {
           <RHTitle />
         </div>
         <div className="rot-helper-input">
-          <RHInput handleChange={(event) => this.handleChange(event)} />
+          <RHInput 
+            handleChange={(event) => this.handleChange(event)} 
+          />
+        </div>
+        <div className="rot-helper-controls">
+          <RHControl
+            handleGlobalRotate={this.handleGlobalRotate.bind(this)}
+            handleReset={this.handleReset.bind(this)}
+          />
+        </div>
+        <div className="rot-helper-letters">
+          {this.createLetters(this.calcString())}
         </div>
         <div className="rot-helper-output">
-          {this.createLetters(this.state.userStr)}
+        <p>{this.calcString()}</p>
         </div>
       </div>
     );
@@ -30,73 +43,129 @@ class RotHelper extends React.Component {
   createLetters(string) {
     let letters = []
     for (let i = 0; i < string.length; i++) {
-      letters.push(<RHLetter value={string[i]} key={i} />)
+      letters.push(<RHLetter 
+        value={string[i]} 
+        key={i} 
+        index={i}
+        handleRotate={this.handleRotate.bind(this)}
+        offset={this.state.letterShiftArray[i] + this.state.globalOffset} />)
     }
     return letters;
   } 
 
   handleChange(event) {
+    let str = event.target.value;
+    let lsa = this.state.letterShiftArray;
+    for (let i = 0; i < str.length; i++) {
+      if (lsa[i] === undefined) {
+        lsa[i] = 0;
+      }
+    }
     this.setState({
-      userStr: event.target.value
-    })
+      userStr: str,
+      letterShiftArray: lsa,
+    });
   }
 
   handleRotate(index, num) {
-    let origVal = this.props.value.charCodeAt(0);
-    let asciiVal = this.state.charCodeAt(index);
-    asciiVal += num;
-    this.setState({
-      value: String.fromCharCode(asciiVal),
-      offset: asciiVal - origVal
+    let lsa = this.state.letterShiftArray;
+    lsa[index] += num;
+    this.setState ({
+      letterShiftArray: lsa,
     });
+  }
+
+  handleGlobalRotate(num) {
+    let offset = this.state.globalOffset + num
+    this.setState({
+      globalOffset: offset
+    })
+  }
+
+  handleReset() {
+    let lsr = this.state.letterShiftArray;
+    for (let i = 0; i < lsr.length; i++) {
+      lsr[i] = 0;
+    }
+    this.setState({
+      letterShiftArray: lsr,
+      globalOffset: 0
+    });
+  }
+
+  calcString() {
+    let str = this.state.userStr;
+    let lsa = this.state.letterShiftArray;
+    let currentStr = "";
+    for (let i = 0; i < str.length; i++) {
+      currentStr += String.fromCharCode(str.charCodeAt(i) + lsa[i] + this.state.globalOffset);
+    }
+    return currentStr;
   }
 }
 
-function RHTitle() {
-  return (
-    <h1>ROT Helper</h1>
-  )
+class RHTitle extends React.Component {
+
+  render() {
+    return (
+      <h1>ROT Helper</h1>
+    )
+  }
+
 }
 
 class RHInput extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <textarea value={this.props.value} onChange={this.props.handleChange} placeholder='Enter text to rotate' />
+        <textarea 
+          value={this.props.value}
+          onChange={this.props.handleChange} 
+          placeholder='Enter text to rotate' />
       </form>
     )
   }
 }
 
 class RHLetter extends React.Component {
-  constructor(props) {
-    super(props);
-  }
 
   render() {
     return (
       <div className="rot-letter">
-        <button onClick={() => this.rotate(this.props.key, 1)}>
+        <button onClick={() => this.props.handleRotate(this.props.index, 1)}>
           /\
         </button>
-        <p>
+        <div className="char-container">
           {this.props.value}
-        </p>
-        <button onClick={() => this.props.rotate(this.props.key, -1)}>
+        </div>
+        <button onClick={() => this.props.handleRotate(this.props.index, -1)}>
           \/
         </button>
-        <p>
+        <div className="char-container">
           {this.props.offset}
-        </p>
+        </div>
       </div>
     )
   }
+}
 
-
+class RHControl extends React.Component {
+  render() {
+    return (
+    <div className="rot-letter">
+      <button onClick={() => this.props.handleGlobalRotate(1)}>
+        /\
+      </button>
+      <button onClick={() => this.props.handleReset()}>
+        X
+      </button>
+      <button onClick={() => this.props.handleGlobalRotate(-1)}>
+        \/
+      </button>
+    </div>
+  );
+  }
 }
 
 
